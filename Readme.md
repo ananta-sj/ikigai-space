@@ -23,8 +23,13 @@ Not a dashboard for measuring your life. A place for inhabiting it.
 
 </div>
 
+<div align="center">
+    <small> ikigai (生き甲斐) </small>
+    <small> or </small>
+    <small> 'a reason for being' is a Japanese concept of an individual's definition of the meaning of their life. </small>
+    </div>
+    
 ---
-
 ## A place for inhabiting your life
 
 Ikigai Space is a private workspace for the parts of life that usually end up scattered across task managers, calendars, journals, notes, timers, career trackers, and half-forgotten documents.
