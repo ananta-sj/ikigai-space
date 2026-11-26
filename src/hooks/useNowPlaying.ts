@@ -7,15 +7,15 @@ let pollTimer: number | null = null;
 let visibilityBound = false;
 
 function onVisibilityChange() {
-  if (document.visibilityState === 'visible') void refreshNowPlaying();
+  if (document.visibilityState === 'visible') void refreshNowPlaying().catch(() => undefined);
 }
 
 function retainPolling() {
   pollingUsers += 1;
   if (pollingUsers === 1 && typeof window !== 'undefined') {
-    void refreshNowPlaying();
+    void refreshNowPlaying().catch(() => undefined);
     pollTimer = window.setInterval(() => {
-      if (document.visibilityState === 'visible') void refreshNowPlaying();
+      if (document.visibilityState === 'visible') void refreshNowPlaying().catch(() => undefined);
     }, 15_000);
     if (!visibilityBound) {
       document.addEventListener('visibilitychange', onVisibilityChange);

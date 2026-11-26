@@ -467,6 +467,8 @@ function PaperSheet({ date, presentation = 'default', deskSize = 'standard', onD
   const lastTension = useRef(0);
   const frameCounter = useRef(0);
   const pendingStress = useRef<Float32Array | null>(null);
+  const stressScratch = useRef(new Float32Array(COLS + 1));
+  const zSnapshot = useRef(new Float32Array((COLS + 1) * (ROWS + 1)));
   const tearIntentSent = useRef(false);
   const grab = useRef<GrabState>({
     active: false,
@@ -740,7 +742,9 @@ function PaperSheet({ date, presentation = 'default', deskSize = 'standard', onD
       }
     }
 
-    const stress = new Float32Array(COLS + 1);
+    // Reused scratch buffers (allocated once above) — the rest of this loop runs at frame rate.
+    const stress = stressScratch.current;
+    stress.fill(0);
     for (let iteration = 0; iteration < CONSTRAINT_ITERATIONS; iteration += 1) {
       for (const constraint of geometryData.constraints) solveConstraint(constraint, stress);
     }
@@ -748,17 +752,17 @@ function PaperSheet({ date, presentation = 'default', deskSize = 'standard', onD
     // Mild curvature regularization: paper can fold, but adjacent vertices should not form
     // needle-like spikes or dive through the sheet stack while it is still attached.
     if (!detached) {
-      const zSnapshot = new Float32Array((COLS + 1) * (ROWS + 1));
-      for (let vertex = 0; vertex < zSnapshot.length; vertex += 1) zSnapshot[vertex] = pos[vertex * 3 + 2];
+      const snapshot = zSnapshot.current;
+      for (let vertex = 0; vertex < snapshot.length; vertex += 1) snapshot[vertex] = pos[vertex * 3 + 2];
       for (let row = 1; row < ROWS; row += 1) {
         for (let col = 1; col < COLS; col += 1) {
           const vertex = indexFor(col, row);
           const base = vertex * 3;
           const average = (
-            zSnapshot[indexFor(col - 1, row)] +
-            zSnapshot[indexFor(col + 1, row)] +
-            zSnapshot[indexFor(col, row - 1)] +
-            zSnapshot[indexFor(col, row + 1)]
+            snapshot[indexFor(col - 1, row)] +
+            snapshot[indexFor(col + 1, row)] +
+            snapshot[indexFor(col, row - 1)] +
+            snapshot[indexFor(col, row + 1)]
           ) * 0.25;
           pos[base + 2] += (average - pos[base + 2]) * 0.055;
           pos[base + 2] = Math.max(-0.035, pos[base + 2]);

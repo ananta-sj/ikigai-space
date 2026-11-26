@@ -1084,8 +1084,15 @@ async function handleLocalApproval(trimmed: string, signal: AbortSignal) {
     let failed = 0;
     for (const target of targets) {
       if (signal.aborted) throw new TransportFailure('cancelled', 'Request cancelled.');
-      const result = await applyPendingProposal(target.messageId, target.proposal.id);
-      if (result.ok) applied += 1; else failed += 1;
+      try {
+        const result = await applyPendingProposal(target.messageId, target.proposal.id);
+        if (result.ok) applied += 1; else failed += 1;
+      } catch (error) {
+        // One stale proposal must not roll back the others in an "apply all" batch.
+        const detail = sanitizeProviderText(error instanceof Error ? error.message : 'Could not apply this change.', getCompanionApiKey());
+        await updateProposal(target.messageId, target.proposal.id, { status: 'failed', error: detail }, false);
+        failed += 1;
+      }
     }
 
     const assistantMessage: CompanionMessage = {

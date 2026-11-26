@@ -519,6 +519,28 @@
 .companion-design-options .design-wisp > i { width: 28px; height: 28px; border-radius: 50%; }
 .companion-design-options .design-mossling > i { width: 34px; height: 23px; border-radius: 42% 42% 50% 50%; }
 
+/* Selection must not rely on colour alone: a small check marks the chosen card. */
+.companion-design-options button,
+.companion-theme-options button,
+.companion-activity-options button,
+.companion-color-options button,
+.companion-familiar-side-row button { position: relative; }
+.companion-design-options button[aria-checked='true']::after,
+.companion-theme-options button[aria-checked='true']::after,
+.companion-activity-options button[aria-checked='true']::after,
+.companion-color-options button[aria-checked='true']::after,
+.companion-familiar-side-row button[aria-checked='true']::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  right: 11px;
+  width: 7px;
+  height: 4px;
+  border-left: 1.5px solid var(--ik-accent-text);
+  border-bottom: 1.5px solid var(--ik-accent-text);
+  transform: rotate(-45deg);
+}
+
 .companion-color-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .companion-color-options button { min-height: 42px; padding: 7px 9px; display: flex; align-items: center; gap: 8px; color: var(--ik-muted); border: 1px solid var(--ik-border); border-radius: var(--ik-radius-sm); background: var(--ik-surface-soft); font: 600 10px/1 var(--ik-body); cursor: pointer; }
 .companion-color-options button.active { color: var(--ik-text); border-color: color-mix(in srgb, var(--ik-accent) 45%, var(--ik-border)); }

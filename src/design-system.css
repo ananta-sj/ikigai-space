@@ -103,6 +103,11 @@ select {
   opacity: .92;
 }
 
+/* Native checkboxes and radios follow the workspace accent instead of the browser default. */
+:where(input[type='checkbox'], input[type='radio']) {
+  accent-color: var(--ik-accent);
+}
+
 /* Chromium/Windows can otherwise open a bright native option list over dark themes.
    The browser still owns the popup, but these values keep supported native menus legible. */
 select option,
@@ -183,6 +188,7 @@ select optgroup {
   margin: 12px 0 0;
   color: var(--ik-muted);
   font: var(--ik-type-body-sm);
+  text-wrap: pretty;
 }
 
 .ik-page-actions {
@@ -1967,6 +1973,9 @@ body,
   :where(input:not([type='checkbox']):not([type='radio']), textarea, select) {
     font-size: max(16px, 1em);
   }
+
+  /* Keep keyboard focus clear of the fixed bottom dock (WCAG 2.2 Focus Not Obscured). */
+  html { scroll-padding-bottom: max(96px, calc(env(safe-area-inset-bottom) + 96px)); }
 
   .ik-route-loading { min-height: 70dvh; }
 }

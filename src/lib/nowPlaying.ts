@@ -76,8 +76,10 @@ function readJson<T>(kind: 'session' | 'local', key: string): T | null {
 
 function writeJson(kind: 'session' | 'local', key: string, value: unknown) {
   try {
-    storage(kind)?.setItem(key, JSON.stringify(value));
-    return storage(kind)?.getItem(key) !== null;
+    const target = storage(kind);
+    if (!target) return false;
+    target.setItem(key, JSON.stringify(value));
+    return target.getItem(key) !== null;
   } catch {
     return false;
   }

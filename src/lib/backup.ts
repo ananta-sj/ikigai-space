@@ -287,6 +287,7 @@ export async function createBackupBundle(): Promise<IkigaiBackupBundle> {
 export async function downloadBackup() {
   const bundle = await createBackupBundle();
   const blob = new Blob([JSON.stringify(bundle)], { type: 'application/json' });
+  if (blob.size > MAX_BACKUP_FILE_BYTES) throw new Error(`This backup is larger than ${Math.round(MAX_BACKUP_FILE_BYTES / (1024 * 1024))} MB, which Ikigai Space would refuse to restore. Free some attachment space before exporting.`);
   const url = URL.createObjectURL(blob);
   const date = new Date(bundle.exportedAt);
   const stamp = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}_${String(date.getHours()).padStart(2, '0')}${String(date.getMinutes()).padStart(2, '0')}`;

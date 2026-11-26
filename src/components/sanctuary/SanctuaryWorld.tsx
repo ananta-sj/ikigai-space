@@ -257,6 +257,13 @@ function Terrain({ lowPower, palette }: { lowPower: boolean; palette: GardenThem
   );
 }
 
+const GARDEN_PATHS: Array<Array<[number, number]>> = [
+  [[0, 9.2], [.2, 6.4], [-.5, 3.6], [.1, .7]],
+  [[.2, .5], [-2.7, 1.2], [-4.6, 2.4], [-5.2, 3.1]],
+  [[.6, .4], [2.8, 1.2], [4.8, 2.6], [6.3, 3.3]],
+  [[.4, -.7], [2.5, -2.4], [4.3, -4.2], [6.2, -5.7]]
+];
+
 function PathRibbon({ points, width = 0.8, color = '#b8a783' }: {
   points: Array<[number, number]>;
   width?: number;
@@ -469,7 +476,7 @@ function GroundDetails({ lowPower, palette, reducedMotion }: { lowPower: boolean
       if (Math.hypot(x, z) < 2.4) x += x > 0 ? 2.7 : -2.7;
       const nearPond = Math.pow((x + 7) / 3.2, 2) + Math.pow((z - 2.7) / 2.2, 2) < 1;
       if (nearPond) z -= 2.4;
-      return { x, z, scale: .15 + random() * .24, rot: random() * Math.PI, index };
+      return { x, z, y: terrainHeight(x, z), scale: .15 + random() * .24, rot: random() * Math.PI, index };
     });
   }, [count]);
 
@@ -478,7 +485,7 @@ function GroundDetails({ lowPower, palette, reducedMotion }: { lowPower: boolean
     for (let index = 0; index < data.length; index += 1) {
       const item = data[index];
       const wind = animate ? sanctuaryWindAt(time, item.x, item.z) : 0;
-      dummy.position.set(item.x, terrainHeight(item.x, item.z) + item.scale * .42, item.z);
+      dummy.position.set(item.x, item.y + item.scale * .42, item.z);
       dummy.scale.set(item.scale * .28, item.scale, item.scale * .25);
       dummy.rotation.set(wind * .028, item.rot, wind * .052);
       dummy.updateMatrix();
@@ -2244,10 +2251,10 @@ function SanctuaryScene({
       <BoundaryMist palette={palette} lowPower={lowPower} reducedMotion={Boolean(reducedMotion)} />
       <BirdFlock palette={palette} lowPower={lowPower} reducedMotion={Boolean(reducedMotion)} />
       <Terrain lowPower={lowPower} palette={palette} />
-      <PathRibbon points={[[0,9.2],[.2,6.4],[-.5,3.6],[.1,.7]]} width={1.02} color={palette.path} />
-      <PathRibbon points={[[.2,.5],[-2.7,1.2],[-4.6,2.4],[-5.2,3.1]]} width={.72} color={palette.pathAlt} />
-      <PathRibbon points={[[.6,.4],[2.8,1.2],[4.8,2.6],[6.3,3.3]]} width={.76} color={palette.pathAlt} />
-      <PathRibbon points={[[.4,-.7],[2.5,-2.4],[4.3,-4.2],[6.2,-5.7]]} width={.68} color={palette.path} />
+      <PathRibbon points={GARDEN_PATHS[0]} width={1.02} color={palette.path} />
+      <PathRibbon points={GARDEN_PATHS[1]} width={.72} color={palette.pathAlt} />
+      <PathRibbon points={GARDEN_PATHS[2]} width={.76} color={palette.pathAlt} />
+      <PathRibbon points={GARDEN_PATHS[3]} width={.68} color={palette.path} />
 
       <GardenStream palette={palette} lowPower={lowPower} />
       <Pond reducedMotion={Boolean(reducedMotion)} palette={palette} lowPower={lowPower} period={period} />

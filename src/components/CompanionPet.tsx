@@ -77,6 +77,17 @@ function playLocalTone(enabled: boolean, kind: 'soft' | 'bright') {
   }
 }
 
+// Owns its own 1s tick so the countdown does not re-render the whole Familiar each second.
+function RetryCountdown({ retry }: { retry: CompanionUiRetry }) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const timer = window.setInterval(() => setTick(value => value + 1), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+  const seconds = Math.max(1, Math.ceil((Date.parse(retry.retryAt) - Date.now()) / 1000));
+  return <span>Auto retry {retry.nextAttempt}/{retry.maxAttempts} in about {seconds}s…</span>;
+}
+
 export function CompanionPet() {
   const location = useLocation();
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -108,7 +119,6 @@ export function CompanionPet() {
   const [dragPosition, setDragPosition] = useState<FamiliarPosition | null>(null);
   const [dragging, setDragging] = useState(false);
   const [roomSignal, setRoomSignal] = useState<FamiliarRoomSignal | null>(null);
-  const [, setRetryTick] = useState(0);
   const drawerRef = useDialogFocus<HTMLElement>(open, () => setOpen(false), { lockScroll: false });
 
   function updatePrompt(next: string) {
@@ -315,12 +325,6 @@ export function CompanionPet() {
   }, [activity, reduced, open, interactionPose, location.pathname]);
 
   useEffect(() => {
-    if (!retry) return;
-    const timer = window.setInterval(() => setRetryTick(value => value + 1), 1000);
-    return () => window.clearInterval(timer);
-  }, [retry]);
-
-  useEffect(() => {
     if (pending > previousPending.current && previousPending.current >= 0 && settings?.familiarReactions !== false) {
       temporaryPose('curious', 2100);
     }
@@ -504,10 +508,6 @@ export function CompanionPet() {
     openTogether();
   }
 
-  const retrySeconds = retry
-    ? Math.max(1, Math.ceil((Date.parse(retry.retryAt) - Date.now()) / 1000))
-    : 0;
-
   return (
     <div
       ref={rootRef}
@@ -608,7 +608,7 @@ export function CompanionPet() {
                   {retry ? (
                     <div className="familiar-auto-retry" role="status" aria-live="polite">
                       <RefreshCw size={13} className="spin" />
-                      <span>Auto retry {retry.nextAttempt}/{retry.maxAttempts} in about {retrySeconds}s…</span>
+                      <RetryCountdown retry={retry} />
                     </div>
                   ) : null}
 
